@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>For You 🌸</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Lora:ital,wght@0,400;0,500;1,400&family=Dancing+Script:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --pink-deep: #e8829a;
+    --pink-mid: #f4a7bb;
+    --pink-light: #fdd5e0;
+    --pink-pale: #fff0f4;
+    --cream: #fff8f2;
+    --rose: #c9536e;
+    --blush: #f9c8d5;
+    --text-dark: #4a2035;
+    --text-mid: #7a3a52;
+    --glass-bg: rgba(255, 255, 255, 0.35);
+    --glass-border: rgba(255, 200, 215, 0.6);
+    --shadow: 0 8px 40px rgba(200, 80, 110, 0.15);
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Lora', serif;
+    background: linear-gradient(135deg, #fff0f5 0%, #ffe4ef 30%, #ffd6e7 60%, #fff5f8 100%);
+    min-height: 100vh;
+    overflow-x: hidden;
+    color: var(--text-dark);
+  }
+
+  /* ─── PROGRESS BAR ─── */
+  #progress-bar {
+    position: fixed;
+    top: 0; left: 0;
+    height: 3px;
+    width: 0%;
+    background: linear-gradient(90deg, var(--rose), var(--pink-mid), #ffb3c6);
+    z-index: 9999;
+    transition: width 0.1s linear;
+    box-shadow: 0 0 10px rgba(200,83,110,0.4);
+  }
+
+  /* ─── FLOATING HEARTS ─── */
+  .hearts-bg {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 0;
+  }
+  .heart-particle {
+    position: absolute;
+    bottom: -60px;
+    font-size: 1rem;
+    opacity: 0;
+    animation: floatUp linear infinite;
+    user-select: none;
+  }
+  @keyframes floatUp {
+    0%   { transform: translateY(0) rotate(-10deg) scale(0.8); opacity: 0; }
+    10%  { opacity: 0.4; }
+    80%  { opacity: 0.25; }
+    100% { transform: translateY(-110vh) rotate(20deg) scale(1.1); opacity: 0; }
+  }
+
+  /* ─── LOCK SCREEN ─── */
+  #lock-screen {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    background: linear-gradient(160deg, #fff4f8 0%, #ffd9e8 50%, #ffe8f0 100%);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+  #lock-screen.hidden {
+    opacity: 0;
+    transform: scale(1.05);
+    pointer-events: none;
+  }
+
+  .lock-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1.5px solid var(--glass-border);
+    border-radius: 32px;
+    padding: 48px 40px 44px;
+    max-width: 380px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(200, 80, 110, 0.2), inset 0 1px 0 rgba(255,255,255,0.7);
+    animation: cardFloat 6s ease-in-out infinite;
+  }
+  @keyframes cardFloat {
+    0%,100% { transform: translateY(0); }
+    50%      { transform: translateY(-8px); }
+  }
+
+  /* SAD HEART SVG */
+  .heart-illustration {
+    width: 130px;
+    height: 130px;
+    margin: 0 auto 28px;
+    position: relative;
+    animation: heartPulse 2.5s ease-in-out infinite;
+  }
+  @keyframes heartPulse {
+    0%,100% { transform: scale(1); }
+    40%     { transform: scale(1.06); }
+    60%     { transform: scale(0.97); }
+  }
+
+  .lock-title {
+    font-family: 'Dancing Script', cursive;
+    font-size: 1.55rem;
+    color: var(--rose);
+    line-height: 1.5;
+    margin-bottom: 10px;
+  }
+  .lock-sub {
+    font-family: 'Lora', serif;
+    font-size: 0.82rem;
+    color: var(--text-mid);
+    margin-bottom: 30px;
+    opacity: 0.8;
+    font-style: italic;
+  }
+
+  .pin-row {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-bottom: 24px;
+  }
+  .pin-dot {
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: rgba(200,83,110,0.2);
+    border: 2px solid var(--pink-mid);
+    transition: all 0.3s ease;
+  }
+  .pin-dot.filled {
+    background: var(--rose);
+    border-color: var(--rose);
+    box-shadow: 0 0 8px rgba(200,83,110,0.5);
+    transform: scale(1.1);
+  }
+
+  .pin-input {
+    width: 100%;
+    padding: 14px 20px;
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    letter-spacing: 0.5rem;
+    text-align: center;
+    border: 1.5px solid var(--glass-border);
+    border-radius: 16px;
+    background: rgba(255,255,255,0.55);
+    color: var(--rose);
+    outline: none;
+    margin-bottom: 20px;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    -webkit-text-security: disc;
+    type: password;
+  }
+  .pin-input:focus {
+    border-color: var(--pink-deep);
+    box-shadow: 0 0 0 4px rgba(232,130,154,0.15);
+  }
+
+  .open-btn {
+    width: 100%;
+    padding: 15px;
+    font-family: 'Dancing Script', cursive;
+    font-size: 1.3rem;
+    color: white;
+    background: linear-gradient(135deg, var(--rose) 0%, var(--pink-deep) 100%);
+    border: none;
+    border-radius: 16px;
+    cursor: pointer;
+    letter-spacing: 0.02em;
+    box-shadow: 0 6px 24px rgba(200,83,110,0.35);
+    transition: transform 0.2s, box-shadow 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .open-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(200,83,110,0.45); }
+  .open-btn:active { transform: translateY(0); }
+  .open-btn::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, transparent 60%);
+    border-radius: inherit;
+  }
+
+  .error-msg {
+    font-size: 0.78rem;
+    color: var(--rose);
+    margin-top: 10px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    font-style: italic;
+  }
+  .error-msg.show { opacity: 1; }
+
+  /* ─── MUSIC TOGGLE ─── */
+  #music-btn {
+    position: fixed;
+    top: 16px; right: 16px;
+    z-index: 999;
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.6);
+    backdrop-filter: blur(10px);
+    border: 1.5px solid var(--glass-border);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    font-size: 1.1rem;
+    box-shadow: 0 4px 16px rgba(200,83,110,0.15);
+    transition: transform 0.2s, background 0.2s;
+  }
+  #music-btn:hover { transform: scale(1.1); background: rgba(255,255,255,0.8); }
+
+  /* ─── LETTER SCREEN ─── */
+  #letter-screen {
+    display: none;
+    position: relative;
+    z-index: 1;
+    padding: 80px 20px 40px;
+    max-width: 680px;
+    margin: 0 auto;
+    animation: fadeInUp 0.9s ease forwards;
+  }
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .letter-header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+  .letter-header .big-heart {
+    font-size: 3rem;
+    animation: heartBeat 1.5s ease-in-out infinite;
+    display: block;
+    margin-bottom: 12px;
+  }
+  @keyframes heartBeat {
+    0%,100% { transform: scale(1); }
+    14%     { transform: scale(1.15); }
+    28%     { transform: scale(1); }
+    42%     { transform: scale(1.08); }
+    70%     { transform: scale(1); }
+  }
+  .letter-header h1 {
+    font-family: 'Dancing Script', cursive;
+    font-size: 2.2rem;
+    color: var(--rose);
+    margin-bottom: 6px;
+  }
+  .letter-header p {
+    font-size: 0.82rem;
+    color: var(--text-mid);
+    font-style: italic;
+    opacity: 0.75;
+  }
+
+  /* Progress indicator */
+  .section-progress {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+    margin-bottom: 36px;
+    flex-wrap: wrap;
+  }
+  .prog-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: rgba(200,83,110,0.2);
+    transition: all 0.4s ease;
+  }
+  .prog-dot.active {
+    background: var(--rose);
+    box-shadow: 0 0 6px rgba(200,83,110,0.5);
+    transform: scale(1.3);
+  }
+  .prog-dot.done {
+    background: var(--pink-mid);
+  }
+
+  /* Letter cards */
+  .letter-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border: 1.5px solid var(--glass-border);
+    border-radius: 24px;
+    padding: 32px 28px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow);
+    position: relative;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.6s ease, transform 0.6s ease, box-shadow 0.3s;
+  }
+  .letter-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, var(--pink-mid), transparent);
+    opacity: 0.7;
+  }
+  .letter-card.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .letter-card:hover {
+    box-shadow: 0 12px 48px rgba(200,80,110,0.22);
+  }
+
+  .card-icon {
+    font-size: 1.5rem;
+    margin-bottom: 14px;
+    display: block;
+  }
+
+  .letter-card p {
+    font-family: 'Lora', serif;
+    font-size: 0.97rem;
+    line-height: 1.9;
+    color: var(--text-dark);
+    white-space: pre-line;
+  }
+
+  .card-hindi {
+    background: linear-gradient(135deg, rgba(255,225,235,0.55), rgba(255,245,248,0.45));
+  }
+  .card-hindi p {
+    font-size: 0.93rem;
+    line-height: 2.05;
+    color: var(--text-mid);
+  }
+
+  .divider {
+    text-align: center;
+    margin: 8px 0;
+    color: var(--pink-mid);
+    font-size: 1.1rem;
+    letter-spacing: 0.4em;
+    opacity: 0.6;
+  }
+
+  /* ─── FINAL SECTION ─── */
+  .final-section {
+    text-align: center;
+    padding: 48px 20px 60px;
+    opacity: 0;
+    transform: scale(0.95);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+  .final-section.visible {
+    opacity: 1;
+    transform: scale(1);
+  }
+  .final-heart-anim {
+    font-size: 5rem;
+    display: block;
+    animation: finalHeartBeat 1.2s ease-in-out infinite;
+    margin-bottom: 20px;
+    filter: drop-shadow(0 0 20px rgba(220,80,100,0.4));
+  }
+  @keyframes finalHeartBeat {
+    0%,100% { transform: scale(1); }
+    20%     { transform: scale(1.2); }
+    40%     { transform: scale(1.05); }
+    60%     { transform: scale(1.15); }
+  }
+  .final-text {
+    font-family: 'Dancing Script', cursive;
+    font-size: 2.4rem;
+    color: var(--rose);
+    text-shadow: 0 2px 20px rgba(200,83,110,0.3);
+    animation: shimmer 3s ease-in-out infinite;
+  }
+  @keyframes shimmer {
+    0%,100% { opacity: 1; }
+    50%     { opacity: 0.8; }
+  }
+  .final-sub {
+    font-family: 'Lora', serif;
+    font-size: 0.85rem;
+    color: var(--text-mid);
+    margin-top: 12px;
+    font-style: italic;
+    opacity: 0.7;
+  }
+
+  /* Petal shower at end */
+  .petals {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 500;
+    display: none;
+  }
+  .petal {
+    position: absolute;
+    top: -30px;
+    font-size: 1.2rem;
+    animation: petalFall linear forwards;
+    opacity: 0.8;
+  }
+  @keyframes petalFall {
+    0%   { transform: translateY(0) rotate(0deg); opacity: 0.8; }
+    100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
+  }
+
+  @media (max-width: 440px) {
+    .lock-card { padding: 36px 24px 32px; }
+    .lock-title { font-size: 1.3rem; }
+    .letter-card { padding: 24px 20px; }
+    .letter-card p { font-size: 0.9rem; }
+    .final-text { font-size: 1.9rem; }
+    #letter-screen { padding: 70px 14px 30px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Progress Bar -->
+<div id="progress-bar"></div>
+
+<!-- Music Button -->
+<button id="music-btn" title="Toggle music">🎵</button>
+
+<!-- Background floating hearts -->
+<div class="hearts-bg" id="hearts-bg"></div>
+
+<!-- Petals container -->
+<div class="petals" id="petals"></div>
+
+<!-- ══════════ LOCK SCREEN ══════════ -->
+<div id="lock-screen">
+  <div class="lock-card">
+    <!-- Sad glass heart with rose SVG -->
+    <div class="heart-illustration">
+      <svg viewBox="0 0 130 130" xmlns="http://www.w3.org/2000/svg" width="130" height="130">
+        <defs>
+          <radialGradient id="hg" cx="40%" cy="35%" r="65%">
+            <stop offset="0%" stop-color="rgba(255,255,255,0.75)"/>
+            <stop offset="60%" stop-color="rgba(255,182,203,0.55)"/>
+            <stop offset="100%" stop-color="rgba(220,80,110,0.35)"/>
+          </radialGradient>
+          <filter id="glow">
+            <feGaussianBlur stdDeviation="3" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+        <!-- Heart shape -->
+        <path d="M65 110 C65 110 10 72 10 42 C10 24 24 14 40 14 C51 14 60 20 65 28 C70 20 79 14 90 14 C106 14 120 24 120 42 C120 72 65 110 65 110Z"
+              fill="url(#hg)" stroke="rgba(220,130,155,0.5)" stroke-width="1.5" filter="url(#glow)"/>
+        <!-- Glass shine -->
+        <path d="M40 22 Q50 16 60 22 Q52 28 44 28Z" fill="rgba(255,255,255,0.55)" />
+        <!-- Sad eyes -->
+        <ellipse cx="52" cy="55" rx="3.5" ry="4" fill="rgba(150,50,80,0.7)"/>
+        <ellipse cx="78" cy="55" rx="3.5" ry="4" fill="rgba(150,50,80,0.7)"/>
+        <!-- Teardrop left -->
+        <ellipse cx="51" cy="63" rx="2" ry="3" fill="rgba(180,210,255,0.7)"/>
+        <!-- Sad mouth -->
+        <path d="M52 74 Q65 68 78 74" stroke="rgba(150,50,80,0.6)" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <!-- Rose stem -->
+        <line x1="65" y1="108" x2="65" y2="128" stroke="rgba(60,130,60,0.7)" stroke-width="2"/>
+        <path d="M65 128 Q62 122 58 120" stroke="rgba(60,130,60,0.6)" stroke-width="1.5" fill="none"/>
+        <!-- Rose bloom -->
+        <circle cx="65" cy="108" r="7" fill="rgba(210,60,90,0.7)" stroke="rgba(180,40,70,0.4)" stroke-width="1"/>
+        <path d="M65 101 Q68 104 65 108 Q62 104 65 101Z" fill="rgba(255,120,140,0.6)"/>
+        <path d="M58 106 Q62 103 65 108 Q61 110 58 106Z" fill="rgba(255,120,140,0.6)"/>
+        <path d="M72 106 Q68 103 65 108 Q69 110 72 106Z" fill="rgba(255,120,140,0.6)"/>
+      </svg>
+    </div>
+
+    <div class="lock-title">Open it when you feel<br>you can read this all ❤️</div>
+    <div class="lock-sub">A letter written from the heart ✨</div>
+
+    <div class="pin-row">
+      <div class="pin-dot" id="d1"></div>
+      <div class="pin-dot" id="d2"></div>
+      <div class="pin-dot" id="d3"></div>
+      <div class="pin-dot" id="d4"></div>
+    </div>
+
+    <input class="pin-input" type="password" id="pin-input" placeholder="✦ ✦ ✦ ✦" maxlength="4" inputmode="numeric" autocomplete="off"/>
+    <button class="open-btn" onclick="checkPassword()">Open the Letter 🌸</button>
+    <div class="error-msg" id="err-msg">Incorrect password, try again 🥺</div>
+  </div>
+</div>
+
+<!-- ══════════ LETTER SCREEN ══════════ -->
+<div id="letter-screen">
+  <div class="letter-header">
+    <span class="big-heart">💌</span>
+    <h1>For You, Always</h1>
+    <p>Scroll gently & read with your heart 🌸</p>
+  </div>
+
+  <div class="section-progress" id="sect-prog"></div>
+
+  <!-- CARD 1 -->
+  <div class="letter-card" data-section="0">
+    <span class="card-icon">🌸</span>
+    <p>sorry for telling you this in your exam period but i can't control my mind, i try but i can't do that</p>
+  </div>
+
+  <!-- CARD 2 -->
+  <div class="letter-card card-hindi" data-section="1">
+    <span class="card-icon">💬</span>
+    <p>ik tumhare liye bhi easy nhi kuch bhi jldi se adopt karna sorryy really sorry ki mai tumko ye sab exam time me btaa rhaa huu. Tum sochogi ki mai tumko buraa bol rhaaa huu lekin god promise aisa nhi hai</p>
+  </div>
+
+  <div class="divider">· · ✦ · ·</div>
+
+  <!-- CARD 3 -->
+  <div class="letter-card card-hindi" data-section="2">
+    <span class="card-icon">🌻</span>
+    <p>Maybe tum itna bada msg kabhi naa padho lekin jab Mann ho tab padh lenaa
+
+Dekho tumhare sath jo bhi ho rhaa hai mujhe pata hona chaiye naa tumko kaisa feel ho rhaa hai kaisa thought aa rhaa hai kya karna chahti ho tum mujhe sab janna hai kya pata mere pass koi solution ho tumhare liye yaa naa bhi kyaa pata tumko wo baat share karna acha lagne lage</p>
+  </div>
+
+  <!-- CARD 4 -->
+  <div class="letter-card card-hindi" data-section="3">
+    <span class="card-icon">❤️</span>
+    <p>mujhe itna toh right hai kii mai ye jaan skta huu ki tum kis situation me ho agar mai tumko thik se nhi rakh paya aur toh mere hone kaa kya mtlb hai mai huu tumhare liye toh tum mujhse share karo naa I love youu tum jab aise bolti ho toh mera heart heavy ho jata hai ki kyaa ho gyaaa usko btaa diya kro jo bhi ho aur mai tumko uss time toh bolunga nhi agar mai tumse puchunga ki khaa huwaa toh tum gussa ho jaogi 🥺 mujhse baat Kiya Karo apne problem aur jiss wajah se bhi tumhara mood kharab hai</p>
+  </div>
+
+  <!-- CARD 5 -->
+  <div class="letter-card card-hindi" data-section="4">
+    <span class="card-icon">💭</span>
+    <p>tumne likha ki "meri wajah se nhi hai" chalo thik hai meri wajah se nhi wo toh tumne mujhe releif dene ke liye bola ki mai jada nhi sochu, lekin tum nhi smjhogi. 🩷I love you so much
+
+Maybe tum itna bada msg kabhi naa padho lekin jab Mann ho tab padh lenaa</p>
+  </div>
+
+  <div class="divider">· · ✦ · ·</div>
+
+  <!-- CARD 6 -->
+  <div class="letter-card card-hindi" data-section="5">
+    <span class="card-icon">📚</span>
+    <p>Pata hai mai notice Kiya huu hmpe bohot effect par rhaa hai pehle mai thoda padhta thaa apne skill se related abhi wo bhi nhi ho paa rhaa hai, pehle toh trading se related, video edit tutorial, coding, aur AI se related abb wo bhi nhi hoo paa rhaa hai
+
+Tumhare bare me hee koi na koi topic mere dimag me bante reh rhaa hai</p>
+  </div>
+
+  <!-- CARD 7 -->
+  <div class="letter-card card-hindi" data-section="6">
+    <span class="card-icon">🔒</span>
+    <p>Dekho mai tumko ek chiz batana chahta huu kabhi kuch bhi chupana nhi, nhi toh wo mere liye acha nhi hoga I hope you understand agar hmko tumhare weekness ke bare me pata nhi hoga toh kisko hoga I love you, mai clear karta huu I promise mere life abb koi dusre ladki nhi aayegi agar koi college me dost bhi banti hai then mai pehle usko bolunga this is your limit.</p>
+  </div>
+
+  <!-- CARD 8 -->
+  <div class="letter-card card-hindi" data-section="7">
+    <span class="card-icon">💍</span>
+    <p>I love you so much toh please kabhi kuch matt chupana chahe wo kaise bhi baat ho I'll understand you I want to marry you 🥺 swear to god. Trust me aur no privacy in our relationship tumhara mera sab open rehna chaiye ki tum kya kar rahi ho aur mai kya kar rhaa huu agar tumko lage ki mai kahi galat huu toh bataa dena mai thik karne ka koshish karunga. Love youuu</p>
+  </div>
+
+  <div class="divider">· · ✦ · ·</div>
+
+  <!-- CARD 9 -->
+  <div class="letter-card card-hindi" data-section="8">
+    <span class="card-icon">🥺</span>
+    <p>Hmko kabhi kuch aise situation me matt dalna ki mera thought badle tumko leke please.
+
+Tum ek baat boli thi "mai tumse itna jaldi mann nhi bharna chahti wo baat hamesha hmko hit karta hai wo soch ke dar lagne lagta hai🥺
+
+Mera dhyaan baar baar tumhare energy pe hee jaa rhaa hai wo change ho rhaa hai hmko leke koi excitement nhi reh rhaa hai tumko 🥺. tum thodaa hee bat kaaro koi problem nhi hai aisa feel chaiye ki mai tumhare liye special hu</p>
+  </div>
+
+  <!-- CARD 10 -->
+  <div class="letter-card card-hindi" data-section="9">
+    <span class="card-icon">🌼</span>
+    <p>Hmko pata hai pure din college me rehne ke baad tum pareshan ho jatai hogi fir mujhse baat karti hoo I love you so much....🌻
+
+Tum instagram toh open karti ho lekin tum mara messages aur bheja huwa reels pe react nhi karti ho it's okk koi naa ye utna matter bhi nhi kartaa. Lekin tumko bataya tumhara chota reaction bohot matter karta hai mere liye.</p>
+  </div>
+
+  <!-- CARD 11 -->
+  <div class="letter-card card-hindi" data-section="10">
+    <span class="card-icon">💞</span>
+    <p>Tbh tum kisi ladke ke sath hmko acha nhi lagta mera heart heavy ho jata hai at a time agar tumko lag rhaa hai ki mai jada possessive ho rhaa huu toh tum btaa dena will discuss on it.
+
+Tum meri ho bas agar tumko koi haath bhi lagaye I can't accept it agar tumhari marzi se lagaye mai kuch nhi kar paunga agr koi aise bakchodi kare toh 'bolne kaa adat hai nhi' karne pe jada beleive hai isliye nhi bolunga</p>
+  </div>
+
+  <!-- CARD 12 -->
+  <div class="letter-card card-hindi" data-section="11">
+    <span class="card-icon">🤝</span>
+    <p>Hamesha yaad rakho tumhare sath mai huu tumko kahi bhi need hai I'm with you, agar tum galat ho, ik tum nhi hoti ho, if ho fir bhi mai huu bas chhorna nhi kbhi.
+
+Bohot bekar feel hota hai jab tum reply nhi karti mere messages ka lgta hai koi excitement hee nhi agar aay bhi toh bohot simple
+
+Ek bhi acha reply nhi milta mai videos bhejta huu toh taki tum acha feel karo khush ho uss chiz ko dekh ke mai bas khush dekhna chahta huu agar tumko lagta hai ki mai enough nhi huu toh gyaa dena.....</p>
+  </div>
+
+  <div class="divider">· · ✦ · ·</div>
+
+  <!-- CARD 13 -->
+  <div class="letter-card card-hindi" data-section="12">
+    <span class="card-icon">📖</span>
+    <p>Mai bhi chizo ko sikh rhaa huu ki tumko kaise treat kar skta huu mai lekin pata nhi mai tumko ache se treat kar paa bhi rhaa huu ki nhi tumhara sada reply aur short reply dekh ke mann bhar jata hai fir tum video call pe hoti ho mere awaz nhi nikal pata hai.
+
+Agar tumko meri kisi bhi adat se problem ho toh btaa dena kyuki Mai nhi chahta ki tumko koi bhi dikkat ho haan mai galti karta huu thoda nhi bohot jada hee karta huu galti
+
+Toh tum datna hmko</p>
+  </div>
+
+  <!-- CARD 14 -->
+  <div class="letter-card card-hindi" data-section="13">
+    <span class="card-icon">🌹</span>
+    <p>Agar tumko lage kii mai jada hee bol rhaa huu aur tumko nhi rehna mere sath tum bas bol dena kuch sochna matt ki ye kyaa sochega kyaa bolega mai kuch nhi sochunga mai toh utna hee pyaar karunga jitna karta huu "ye bas mere mann me aaya toh mai bola" ki tumko lage kii ye term and condition lgaa rhaa mai nhi reh skti iske sath, agar aisa thought aaye toh btaa dena. I'll adjust my self lekin kabhi gaali matt dena pith piche.
+
+I love you so much mai kewal apna hee baat rakh diyaa sorry 😔......</p>
+  </div>
+
+  <!-- CARD 15 -->
+  <div class="letter-card" data-section="14">
+    <span class="card-icon">💗</span>
+    <p>Main sorry bahut zyada bolta hun and 90% of the time mera koi galti bhi nahi hota. Bas mujhe yahi dar rehta hai ki shayad mai kuch galat bol diya hoga shayad maine kisi ko hurt kar diya hai. Mujhe lagta hai ki agar main unnecessarily sorry na bolun toh shayad dusra insaan mujhse door ho jayega. Isiliye main bahut zyada sorry bol deta hun, har baat pe sorry bol deta hun, har situation mein sorry bol deta hun.</p>
+  </div>
+
+  <!-- CARD 16 -->
+  <div class="letter-card" data-section="15">
+    <span class="card-icon">🧠</span>
+    <p>But problem sirf itni nahi hai, main overthink bhi bahut karta hun. Har chhoti baat pe overthink karta hun. Main itna overthink karta hun ki main actual reality se hatke apne dimaag mein scenarios bana deta hun ki aisi baat hogi, waisi baat hogi and khud ki haalat kharab karta rehta hun. Ki agar koi reply late kar de toh sochne lagta hun ki isne reply late kyun kiya? Matlab kisi baat se naraaz toh nahi hai, gussa toh nahi hai? Kuch baat toh nahi ho gayi? Maine toh nahi kuch bol diya? Hazaar cheezein just because of my overthinking.</p>
+  </div>
+
+  <!-- CARD 17 -->
+  <div class="letter-card" data-section="16">
+    <span class="card-icon">🌱</span>
+    <p>And in sab ke beech mein mujhe pata hota hai ki bhai main overthink kar raha hun, but still main khud ko rok nahi paata. And is sab ke beech mein log aate hain ki yaar agar tu overthink karta hai toh simply mat karna, like it's that easy. Main still try kar raha hun explain karne ki ki har responsibility meri nahi hoti aur har kisi dusre bande ka silence koi problem nahi hoti. But yeah abhi bhi koshish chal rahi hai, I'm trying to fix this kyunki it's gonna be one day, not a day one.
+
+Mera batane ka intension nhi thaa but bohot heavy feel ho rhaa thaa….</p>
+  </div>
+
+  <!-- FINAL SECTION -->
+  <div class="final-section" id="final-section">
+    <span class="final-heart-anim">❤️</span>
+    <div class="final-text">❤️ I Love You Suuuu ❤️</div>
+    <div class="final-sub">Always & forever, no matter what 🌸</div>
+  </div>
+</div>
+
+<!-- Audio (silent ambient) -->
+<audio id="bg-music" loop>
+  <source src="data:audio/mpeg;base64,SUQzBAAAAAAA" type="audio/mpeg">
+</audio>
+
+<script>
+// ══════ HEARTS BACKGROUND ══════
+const heartsContainer = document.getElementById('hearts-bg');
+const heartEmojis = ['❤️','🩷','💗','💓','💕','🌸','✨','💝'];
+function spawnHeart() {
+  const h = document.createElement('span');
+  h.className = 'heart-particle';
+  h.textContent = heartEmojis[Math.floor(Math.random() * heartEmojis.length)];
+  h.style.left = Math.random() * 100 + 'vw';
+  h.style.fontSize = (0.6 + Math.random() * 1.2) + 'rem';
+  const dur = 8 + Math.random() * 10;
+  h.style.animationDuration = dur + 's';
+  h.style.animationDelay = Math.random() * 4 + 's';
+  heartsContainer.appendChild(h);
+  setTimeout(() => h.remove(), (dur + 4) * 1000);
+}
+setInterval(spawnHeart, 900);
+for (let i = 0; i < 10; i++) setTimeout(spawnHeart, i * 200);
+
+// ══════ PIN INPUT ══════
+const pinInput = document.getElementById('pin-input');
+pinInput.addEventListener('input', () => {
+  const v = pinInput.value;
+  for (let i = 1; i <= 4; i++) {
+    const dot = document.getElementById('d' + i);
+    dot.classList.toggle('filled', v.length >= i);
+  }
+});
+pinInput.addEventListener('keydown', e => { if (e.key === 'Enter') checkPassword(); });
+
+function checkPassword() {
+  const val = pinInput.value.trim();
+  const err = document.getElementById('err-msg');
+  if (val === '3000') {
+    document.getElementById('lock-screen').classList.add('hidden');
+    setTimeout(() => {
+      document.getElementById('lock-screen').style.display = 'none';
+      document.getElementById('letter-screen').style.display = 'block';
+      initLetter();
+    }, 900);
+  } else {
+    err.classList.add('show');
+    pinInput.style.borderColor = '#e8829a';
+    pinInput.value = '';
+    for (let i = 1; i <= 4; i++) document.getElementById('d' + i).classList.remove('filled');
+    setTimeout(() => { err.classList.remove('show'); pinInput.style.borderColor = ''; }, 2500);
+  }
+}
+
+// ══════ LETTER LOGIC ══════
+const cards = document.querySelectorAll('.letter-card');
+const finalSection = document.getElementById('final-section');
+const progressBar = document.getElementById('progress-bar');
+const sectProg = document.getElementById('sect-prog');
+let finalShown = false;
+
+function initLetter() {
+  // Build progress dots
+  cards.forEach((_, i) => {
+    const dot = document.createElement('div');
+    dot.className = 'prog-dot';
+    dot.id = 'pd-' + i;
+    sectProg.appendChild(dot);
+  });
+  observeCards();
+  window.addEventListener('scroll', updateProgress);
+  updateProgress();
+}
+
+function updateProgress() {
+  const docH = document.documentElement.scrollHeight - window.innerHeight;
+  const pct = docH > 0 ? (window.scrollY / docH) * 100 : 0;
+  progressBar.style.width = pct + '%';
+
+  // Final section
+  if (!finalShown) {
+    const rect = finalSection.getBoundingClientRect();
+    if (rect.top < window.innerHeight * 0.85) {
+      finalShown = true;
+      finalSection.classList.add('visible');
+      triggerPetals();
+    }
+  }
+}
+
+function observeCards() {
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        const idx = parseInt(entry.target.dataset.section);
+        updateDots(idx);
+      }
+    });
+  }, { threshold: 0.18 });
+  cards.forEach(c => io.observe(c));
+}
+
+function updateDots(activeIdx) {
+  document.querySelectorAll('.prog-dot').forEach((dot, i) => {
+    dot.classList.remove('active', 'done');
+    if (i < activeIdx) dot.classList.add('done');
+    else if (i === activeIdx) dot.classList.add('active');
+  });
+}
+
+// ══════ PETALS ══════
+function triggerPetals() {
+  const petalsEl = document.getElementById('petals');
+  petalsEl.style.display = 'block';
+  const petals = ['🌸','🌺','🌷','💮','🩷'];
+  for (let i = 0; i < 28; i++) {
+    setTimeout(() => {
+      const p = document.createElement('span');
+      p.className = 'petal';
+      p.textContent = petals[Math.floor(Math.random() * petals.length)];
+      p.style.left = Math.random() * 100 + 'vw';
+      p.style.fontSize = (0.9 + Math.random() * 0.8) + 'rem';
+      const dur = 3 + Math.random() * 3;
+      p.style.animationDuration = dur + 's';
+      petalsEl.appendChild(p);
+      setTimeout(() => p.remove(), dur * 1000);
+    }, i * 180);
+  }
+  setTimeout(() => { petalsEl.style.display = 'none'; }, 9000);
+}
+
+// ══════ MUSIC ══════
+// Web Audio API ambient tone (gentle, pink-noise-ish lullaby feel)
+let audioCtx = null, musicOn = false;
+let oscNodes = [], gainNode = null;
+
+function createAmbient() {
+  if (audioCtx) return;
+  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  gainNode = audioCtx.createGain();
+  gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+  gainNode.connect(audioCtx.destination);
+
+  // Gentle layered tones (D minor pentatonic feel)
+  const freqs = [293.66, 349.23, 392.00, 440.00, 523.25];
+  freqs.forEach((f, i) => {
+    const osc = audioCtx.createOscillator();
+    const og = audioCtx.createGain();
+    osc.type = i % 2 === 0 ? 'sine' : 'triangle';
+    osc.frequency.value = f;
+    og.gain.value = 0.04 + (i * 0.01);
+    osc.connect(og);
+    og.connect(gainNode);
+    osc.start();
+
+    // Gentle tremolo
+    const lfo = audioCtx.createOscillator();
+    const lfog = audioCtx.createGain();
+    lfo.frequency.value = 0.3 + i * 0.15;
+    lfog.gain.value = 0.015;
+    lfo.connect(lfog);
+    lfog.connect(og.gain);
+    lfo.start();
+    oscNodes.push(osc, lfo);
+  });
+}
+
+document.getElementById('music-btn').addEventListener('click', () => {
+  if (!audioCtx) createAmbient();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  musicOn = !musicOn;
+  gainNode.gain.linearRampToValueAtTime(musicOn ? 0.7 : 0, audioCtx.currentTime + 1.5);
+  document.getElementById('music-btn').textContent = musicOn ? '🔊' : '🎵';
+});
+</script>
+</body>
+</html>
